@@ -1,0 +1,330 @@
+//AUTHOR Haughney
+//COURSE CPT167
+//PURPOSE This program assists in purchasing sod.
+//STARTDATE 10/3/2019
+
+package edu.cpt167.haughney.participation;
+
+import java.util.Scanner;
+
+public class HaughneySodNotZod
+{
+	// Declare class constants
+	public static final double DISCOUNT_RATE_MEMBER = 0.15;
+	public static final double DISCOUNT_RATE_SENIOR = 0.25;
+	public static final double DISCOUNT_RATE_NONE = 0.0;
+	public static final double TAX_RATE = 0.075;
+	public static final int RESET_VALUE = 0;
+	public static final String NAME_PREMIUM = "Premium Sod";
+	public static final String NAME_SPECIAL = "Special Sod";
+	public static final String NAME_BASIC = "Basic Sod";
+	public static final double PRICE_PREMIUM = 5.99;
+	public static final double PRICE_SPECIAL = 3.99;
+	public static final double PRICE_BASIC = 1.99;
+
+	public static void main(String[] args)
+	{
+		// TODO Auto-generated method stub
+
+		// Create scanner
+		Scanner input = new Scanner(System.in);
+
+		// Initialize variables
+		String userName = "";
+		char menuSelection = ' ';
+		int howManyItems = 0;
+		char itemSelection = ' ';
+		int howManyEach = 0;
+		double discountRate = 0.0;
+		int memberCount = 0;
+		int seniorCount = 0;
+		int noDiscountCount = 0;
+		String itemName = "";
+		double itemPrice = 0.0;
+		int premiumCount = 0;
+		int specialCount = 0;
+		int basicCount = 0;
+		double discountAmt = 0.0;
+		double discountPrice = 0.0;
+		double subTotal = 0.0;
+		double tax = 0.0;
+		double totalCost = 0.0;
+		double customerTotal = 0.0;
+		double grandTotal = 0.0;
+		int itemCounter = 0;
+		double origPrice = 0.0;
+
+		// Welcome banner
+		displayWelcomeBanner();
+
+		// INPUT
+
+		// Get userName
+		userName = getUserName(input);
+
+		// Get menuSelection
+		menuSelection = validateMainMenu(input);
+
+		// Run while loop
+		while(menuSelection != 'Q')
+		{
+			// Get number of unique items
+			howManyItems = validateHowManyItems(input);
+			while(itemCounter < howManyItems)
+			{
+				// Obtain item selection
+				itemSelection = validateItemMenu(input);
+				howManyEach= validateHowManyEach(input);
+
+				// PROCESSES
+				// Assign values based on discount selection
+				if(menuSelection == 'A')
+				{
+					discountRate = DISCOUNT_RATE_MEMBER;
+					memberCount++;
+				}
+				else if(menuSelection == 'B')
+				{
+					discountRate = DISCOUNT_RATE_SENIOR;
+					seniorCount++;
+				}
+				else
+				{
+					discountRate = DISCOUNT_RATE_NONE;
+					noDiscountCount++;
+				}
+
+				// Assign values based on item selection
+				if(itemSelection == 'A')
+				{
+					itemName = NAME_PREMIUM;
+					itemPrice = PRICE_PREMIUM;
+					premiumCount++;
+				}
+				else if(itemSelection == 'B')
+				{
+					itemName = NAME_SPECIAL;
+					itemPrice = PRICE_SPECIAL;
+					specialCount++;
+				}
+				else
+				{
+					itemName = NAME_BASIC;
+					itemPrice = PRICE_BASIC;
+					basicCount++;
+				}
+
+				// Final calculations
+				origPrice = itemPrice;
+				discountAmt = origPrice*discountRate;
+				discountPrice = origPrice - discountAmt;
+				subTotal = howManyEach * discountPrice;
+				tax = subTotal * TAX_RATE;
+				totalCost = subTotal + tax;
+				customerTotal = customerTotal + totalCost;
+				grandTotal = grandTotal + totalCost;
+
+				// OUTPUT
+				displayItemReceipt(userName, itemName, origPrice, discountPrice, howManyEach, subTotal, tax, totalCost);
+				itemCounter++;
+			} // END OF while loop
+
+			// If sales, display report
+			if(howManyItems > 0)
+			{
+				displayCustomerReport(howManyItems, customerTotal);
+			}
+
+			// Reset counters
+			itemCounter = RESET_VALUE;
+			customerTotal = RESET_VALUE;
+
+			// Return to menu and update LCV
+			menuSelection = validateMainMenu(input);
+
+		}// END OF run while loop
+
+		// If sales, display final report
+		if (grandTotal > 0.0)
+		{
+			displayFinalReport(memberCount, seniorCount, noDiscountCount, premiumCount, specialCount, basicCount, grandTotal);
+		}
+
+		// Display farewell message
+		displayFarewellMessage();
+
+		// Close Scanner
+		input.close();
+
+	}// END OF main method
+
+	public static void displayWelcomeBanner()
+	{
+		System.out.println("************************************************************");
+		System.out.println("Welcome to Sod Not Zod! We will help you find all the right");
+		System.out.println("sod for whatever project you are working on. Use our menus");
+		System.out.println("to help find the perfect sod for your needs.");
+		System.out.println("************************************************************");
+	}// END OF displayWelcomeBanner method
+
+	public static String getUserName(Scanner borrowedInput)
+	{
+		//Init local vars
+		String localUserName = "";
+
+		//Get localUserName
+		System.out.printf("%s\n", "Let's get started. Please input your name: ");
+		localUserName = borrowedInput.next();
+		System.out.printf("%s%s%s\n", "Thanks for using the utility, ", localUserName, ".");
+		return localUserName;
+	}// END OF getUserName method
+
+	public static char validateMainMenu(Scanner borrowedInput)
+	{
+		//Init local vars
+		char localMenuSelection = ' ';
+
+		//Print menu and obtain selection
+		System.out.println("************************************************************");
+		System.out.println("********************** Discount Menu ***********************");
+		System.out.printf("%-4s%-50s%5.1f%s\n", "[A]", "Member", DISCOUNT_RATE_MEMBER*100, "%");
+		System.out.printf("%-4s%-50s%5.1f%s\n", "[B]", "Senior", DISCOUNT_RATE_SENIOR*100, "%");
+		System.out.printf("%-4s%-50s%5.1f%s\n", "[C]", "None", DISCOUNT_RATE_NONE*100, "%");
+		System.out.printf("%-4s%-20s\n", "[Q]", "Quit this program.");
+		System.out.println("Enter your selection below: ");
+		localMenuSelection = borrowedInput.next().toUpperCase().charAt(0);
+		// Validation loop for localMenuSelection
+		while (localMenuSelection != 'A' && localMenuSelection != 'B' && localMenuSelection != 'C' && localMenuSelection != 'Q')
+		{
+			System.out.println("Invalid selection. Please try again.");
+			System.out.println("************************************************************");
+			System.out.println("********************** Discount Menu ***********************");
+			System.out.printf("%-4s%-50s%5.1f%s\n", "[A]", "Member", DISCOUNT_RATE_MEMBER*100, "%");
+			System.out.printf("%-4s%-50s%5.1f%s\n", "[B]", "Senior", DISCOUNT_RATE_SENIOR*100, "%");
+			System.out.printf("%-4s%-50s%5.1f%s\n", "[C]", "None", DISCOUNT_RATE_NONE*100, "%");
+			System.out.printf("%-4s%-20s\n", "[Q]", "Quit this program.");
+			System.out.println("Enter your selection below: ");
+			localMenuSelection = borrowedInput.next().toUpperCase().charAt(0);
+		} // END OF localSelection validation loop
+
+		// Return selection
+		return localMenuSelection;
+
+	}// END OF validateMainMenu method
+
+	public static int validateHowManyItems(Scanner borrowedInput)
+	{
+		// Init local vars
+		int localHowManyItems = 0;
+
+		// Obtain user selection
+		System.out.println("************************************************************");
+		System.out.printf("%s\n", "How many unique items do you want? Input integer below:");
+		localHowManyItems = borrowedInput.nextInt();
+
+		// While loop for validating input
+		while(localHowManyItems <= 0)
+		{
+			System.out.printf("%s\n", "Value needs to be greater than 0. Please try again:");
+			localHowManyItems = borrowedInput.nextInt();
+		} // END OF validation loop
+		// return value
+		return localHowManyItems;
+	}
+
+	public static char validateItemMenu(Scanner borrowedInput)
+	{
+		// Init local vars
+		char localItemSelection = ' ';
+
+		// Print menu and obtain selection
+		System.out.println("************************************************************");
+		System.out.println("************************ Sod Menu **************************");
+		System.out.printf("%-4s%-48s%-2s%6.2f\n", "[A]", NAME_PREMIUM, "$", PRICE_PREMIUM);
+		System.out.printf("%-4s%-48s%-2s%6.2f\n", "[B]", NAME_SPECIAL, "$", PRICE_SPECIAL);
+		System.out.printf("%-4s%-48s%-2s%6.2f\n", "[C]", NAME_BASIC, "$", PRICE_BASIC);
+		System.out.println("Enter your selection below: ");
+		localItemSelection = borrowedInput.next().toUpperCase().charAt(0);
+		// Validation loop for localItemSelection
+		while (localItemSelection != 'A' && localItemSelection != 'B' && localItemSelection != 'C')
+		{
+			System.out.println("Invalid selection. Please try again.");
+			System.out.println("************************************************************");
+			System.out.println("************************ Sod Menu **************************");
+			System.out.printf("%-4s%-48s%-2s%6.2f\n", "[A]", NAME_PREMIUM, "$", PRICE_PREMIUM);
+			System.out.printf("%-4s%-48s%-2s%6.2f\n", "[B]", NAME_SPECIAL, "$", PRICE_SPECIAL);
+			System.out.printf("%-4s%-48s%-2s%6.2f\n", "[C]", NAME_BASIC, "$", PRICE_BASIC);
+			System.out.println("Enter your selection below: ");
+			localItemSelection = borrowedInput.next().toUpperCase().charAt(0);
+		} // END OF input validation for localItemSelection
+
+		return localItemSelection;
+	}// END OF validateItemMenu method
+
+	public static int validateHowManyEach(Scanner borrowedInput)
+	{
+		// Init local vars
+		int localHowManyEach = 0;
+
+		// Obtain user selection
+		System.out.println("************************************************************");
+		System.out.printf("%s\n", "How many units of sod do you want? Input integer below:");
+		localHowManyEach = borrowedInput.nextInt();
+
+		// While loop for validating input
+		while(localHowManyEach <= 0)
+		{
+			System.out.printf("%s\n", "Value needs to be greater than 0. Please try again:");
+			localHowManyEach = borrowedInput.nextInt();
+		} // END OF validation loop
+
+		// return value
+		return localHowManyEach;
+	}
+
+	public static void displayItemReceipt(String borrowedUserName, String borrowedItemName, double borrowedOrigPrice, double borrowedDiscountPrice, int borrowedHowMany, double borrowedSubTotal, double borrowedTax, double borrowedTotalCost)
+	{
+		// Display total for item selection
+		System.out.println("************************************************************");
+		System.out.println("********************** Your Receipt ************************");
+		System.out.printf("%-45s%15s\n", "Customer Name: ", borrowedUserName);
+		System.out.printf("%-45s%15s\n", "Item selected: ", borrowedItemName);
+		System.out.printf("%-51s%s%8.2f\n", "Original Price: ", "$" ,borrowedOrigPrice);
+		System.out.printf("%-51s%s%8.2f\n", "Discount Price: ", "$" ,borrowedDiscountPrice);
+		System.out.printf("%-45s%15d\n", "Number of units: ", borrowedHowMany);
+		System.out.printf("%-51s%s%8.2f\n", "Subtotal: ", "$" ,borrowedSubTotal);
+		System.out.printf("%-51s%s%8.2f\n", "Tax: ", "$" ,borrowedTax);
+		System.out.printf("%-51s%s%8.2f\n", "Total: ", "$" ,borrowedTotalCost);
+
+	} // END OF displayItemReceipt method
+
+	public static void displayCustomerReport(int borrowedHowManyItems, double borrowedCustomerTotal)
+	{
+		System.out.println("************************************************************");
+		System.out.println("******************** Customer Report ***********************");
+		System.out.printf("%-45s%15d\n", "Number of unique items: ", borrowedHowManyItems);
+		System.out.printf("%-51s%s%8.2f\n", "Total Sales: ", "$" ,borrowedCustomerTotal);
+	} // END OF displayCustomerReport method
+
+	public static void displayFinalReport(int borrowedMemberCount, int borrowedSeniorCount, int borrowedNoDiscountCount, int borrowedPremiumCount, int borrowedSpecialCount, int borrowedBasicCount, double borrowedGrandTotal)
+	{
+		System.out.println("************************************************************");
+		System.out.println("********************** Final Report ************************");
+		System.out.printf("%-45s%15d\n", "Number of member discount sales: ", borrowedMemberCount);
+		System.out.printf("%-45s%15d\n", "Number of senior discount sales: ", borrowedSeniorCount);
+		System.out.printf("%-45s%15d\n", "Number of no discount sales: ", borrowedNoDiscountCount);
+		System.out.printf("%-45s%15d\n", "Number of premium sod orders: ", borrowedPremiumCount);
+		System.out.printf("%-45s%15d\n", "Number of special sod orders: ", borrowedSpecialCount);
+		System.out.printf("%-45s%15d\n", "Number of basic sod orders: ", borrowedBasicCount);
+		System.out.printf("%-51s%s%8.2f\n", "Total: ", "$" ,borrowedGrandTotal);
+	} // END OF displayFinalReport method
+
+	public static void displayFarewellMessage()
+	{
+		System.out.println("************************************************************");
+		System.out.println("Thank you for coming into Sod Not Zod today! We appreciate");
+		System.out.println("your business and hope you enjoy your new sod!");
+		System.out.println("************************************************************");
+	} // END OF displayFarewellMessage method
+
+}// END OF class
